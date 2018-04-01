@@ -37,7 +37,8 @@ void boundary_r( struct domain * theDomain ){
          double xm[3] = {rm,tm,pm};
          double dV = get_dV(xp,xm);
          double r = .5*(rp+rm);
-         prim2cons( c2->prim , c2->cons , r , dV );
+         double th = 0.5*(tp+tm);
+         prim2cons( c2->prim , c2->cons , r , th, dV );
       }    
    }
 }

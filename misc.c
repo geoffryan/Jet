@@ -588,10 +588,13 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       double drR = sweep[iS+1].dr;
       if( (drL < drR && iS!=1) ) --iS;
 
+      //if iS is last zone, move it back by one.
+      if(iS == Nr[jk] - 1) --iS;
+
       //Remove Zone at iS+1
       sweep[iS].dr += sweep[iS+1].dr;
       sweep[iS].riph = sweep[iS+1].riph;
-      sweep[iS].riph = sweep[iS+1].RKriph;
+      sweep[iS].RKriph = sweep[iS+1].RKriph;
       int q;
       for( q=0 ; q<NUM_Q ; ++q ){
          sweep[iS].cons[q]   += sweep[iS+1].cons[q];
@@ -655,7 +658,6 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       cons2prim( sweep[iL+1].cons , sweep[iL+1].prim , r , .5*(xp[1]+xm[1]) , dV );
 
    }
-
 }
 
 void AMR( struct domain * theDomain ){
