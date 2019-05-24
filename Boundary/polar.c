@@ -22,14 +22,20 @@ void boundary_r( struct domain * theDomain ){
          double phi = .5*(p_kph[k]+p_kph[k-1]);
          int jk = j+Nt*k;
          struct cell * c2 = &(theCells[jk][Nr[jk]-1]);
+         struct cell * c1 = &(theCells[jk][Nr[jk]-2]);
          double r = c2->riph - c2->dr;
          double x[3] = {r,theta,phi};
          initial( c2->prim , x );
+         r = c1->riph - c1->dr;
+         x[0] = r;
+         initial( c1->prim , x );
          if( ABSORB_R0 ){
-            struct cell * c3 = &(theCells[jk][1]);
-            struct cell * c4 = &(theCells[jk][0]);
+            struct cell * c3 = &(theCells[jk][2]);
+            struct cell * c4 = &(theCells[jk][1]);
+            struct cell * c5 = &(theCells[jk][0]);
             for( q=0 ; q<NUM_Q ; ++q ){
                c4->prim[q] = c3->prim[q];
+               c5->prim[q] = c3->prim[q];
             }
          }
       }    

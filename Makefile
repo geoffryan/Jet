@@ -1,8 +1,8 @@
 
-INITIAL  = ejecta
-HYDRO    = euler_sph
+INITIAL  = shellStruct
+HYDRO    = rel_sph
 GEOMETRY = spherical
-BOUNDARY = neumann
+BOUNDARY = polar
 RIEMANN  = hllc
 TIMESTEP = rk2
 OUTPUT   = h5out
@@ -13,7 +13,7 @@ ifeq ($(UNAME),Linux)
 H55 = /home/install/app/hdf5
 endif
 ifeq ($(UNAME),Darwin)
-H55 = /opt/local
+H55 = /usr/local
 endif
 
 CC = mpicc

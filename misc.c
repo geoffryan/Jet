@@ -1,6 +1,8 @@
 #include "paul.h"
 #include <string.h>
 
+#define DEBUG_AMR 0
+
 double get_dA( double * , double * , int );
 double get_dV( double * , double * );
 
@@ -214,7 +216,7 @@ void move_BCs( struct domain * theDomain , double dt ){
       double w_out = w1*(rmax/r1);
       double w_in  = w1*(rmin/r1);
 //This shit should not be hard-coded.  Fix this when you fix that Nickel crap. 
-      if( w_in > 1e-3 ) w_in = 1e-3;
+      //if( w_in > 1e-3 ) w_in = 1e-3;
 
       double rmin_new = rmin + w_in*dt;
       double rmax_new = rmax + w_out*dt;
@@ -582,14 +584,16 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
    longandshort( theDomain , &L , &S , &iL , &iS , sweep , j , k );
 
    if( S>MaxShort ){
+      if(DEBUG_AMR)
+       printf("  AMRsweep: S start\n");
+
+      //if iS is last zone, move it back by one.
+      if(iS == Nr[jk] - 1) --iS;
 
       //Possibly shift iS backwards by 1
       double drL = sweep[iS-1].dr;
       double drR = sweep[iS+1].dr;
       if( (drL < drR && iS!=1) ) --iS;
-
-      //if iS is last zone, move it back by one.
-      if(iS == Nr[jk] - 1) --iS;
 
       //Remove Zone at iS+1
       sweep[iS].dr += sweep[iS+1].dr;
@@ -609,15 +613,28 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       cons2prim( sweep[iS].cons , sweep[iS].prim , r , .5*(xp[1]+xm[1]) , dV );
       //Shift Memory
       int blocksize = Nr[jk]-iS-2;
-      memmove( sweep+iS+1 , sweep+iS+2 , blocksize*sizeof(struct cell) );
+      if(DEBUG_AMR)
+       printf("  AMRsweep: S memmove\n");
+      if(blocksize > 0)
+        memmove( sweep+iS+1 , sweep+iS+2 , blocksize*sizeof(struct cell) );
+      if(DEBUG_AMR)
+       printf("  AMRsweep: S memmove done\n");
       Nr[jk] -= 1;
+      if(DEBUG_AMR)
+       printf("  AMRsweep: S realloc\n");
       *swptr = (struct cell *) realloc( sweep , Nr[jk]*sizeof(struct cell) );
+      if(DEBUG_AMR)
+       printf("  AMRsweep: S realloc done\n");
       sweep = *swptr;
       if( iS < iL ) iL -= 1;
 
+      if(DEBUG_AMR)
+       printf("  AMRsweep: S end\n");
    }
 
    if( L>MaxLong ){
+      if(DEBUG_AMR)
+       printf("  AMRsweep: L start\n");
       Nr[jk] += 1;
       *swptr = (struct cell *) realloc( sweep , Nr[jk]*sizeof(struct cell) );
       sweep = *swptr;
@@ -656,6 +673,8 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       xm[0] = rm;
       dV = get_dV( xp , xm );
       cons2prim( sweep[iL+1].cons , sweep[iL+1].prim , r , .5*(xp[1]+xm[1]) , dV );
+      if(DEBUG_AMR)
+          printf("  AMRsweep: L end\n");
 
    }
 }
@@ -667,7 +686,15 @@ void AMR( struct domain * theDomain ){
    int j,k;
    for( j=0 ; j<Nt ; ++j ){
       for( k=0 ; k<Np ; ++k ){
+      if(DEBUG_AMR)
+      {
+          printf("AMRsweep: %d %d %d %d %d\n", j, k, Nt, Np, theDomain->Nr[j+Nt*k]);
+          printf("theCells: %p\n", theCells);
+          printf("theCells[jk]: %p %p\n", theCells+j+Nt*k, theCells[j+Nt*k]);
+      }
          AMRsweep( theDomain , theCells+j+Nt*k , j , k );
+      if(DEBUG_AMR)
+          printf("AMRsweep done.\n");
       }
    }
 }

@@ -3,27 +3,27 @@
 Restart			0	//Restart from input.h5
 
 //Time Range//
-T_Start			1e-3
-T_End			1e3
+T_Start			3e-2
+T_End			1.0
 
 //Output Frequency//
 Num_Reports		1e5
 Num_Snapshots		0
-Num_Checkpoints		60 //1000
+Num_Checkpoints		100 //1000
 Use_Logtime		1
 
 //Grid Dimensions//
-Num_R			64  //128
-Num_Theta		32  //64
+Num_R			1024  //128
+Num_Theta		1  //64
 Num_Phi			1
 
 //Domain Parameters//
-R_Min			1e-4 //1e-4
-R_Max			1e-2
+R_Min			1e-2 //1e-4
+R_Max			4e-2
 Theta_Min		0.0 //0.7853982   //0.0
 Theta_Max		1.5707963268 //3.14159265358979323844
 Phi_Max			6.28318530717958647688
-Log_Zoning		1.0
+Log_Zoning		0.0
 Max_Aspect_Short	2.0
 Max_Aspect_Long		5.0 //2.5
 Absorbing_BC		0
@@ -32,7 +32,7 @@ Shock_Position		0.75
 Move_w0			0.0
 Move_w1			0.0
 Initial_Regrid		0
-Target_X0		0.0
+Target_X0		    0.0
 Target_Weight		0.0
 Initial_Cons		10
 
@@ -42,7 +42,7 @@ PLM			1.0
 Density_Floor		0.0
 Pressure_Floor		1e-8
 Reset_Entropy		0
-Make_Nickel		1
+Make_Nickel		0
 Add_Cooling		0
 
 //Hydro Parameters
@@ -54,7 +54,7 @@ PointMass		0
 Output_Mass		0
 
 //Nozzle Parameters
-Nozzle_Switch		1
+Nozzle_Switch		0
 Nozzle_Power		0.2
 Nozzle_Gamma		50.0
 Nozzle_Eta		1000.0

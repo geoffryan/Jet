@@ -173,7 +173,7 @@ void source( double * prim , double * cons , double * xp , double * xm , double 
    double ut  = prim[UU2];
    double r2 = (rp*rp+rm*rm+rp*rm)/3.;
    cons[SS1] += (2.*Pp + rhoh*ut*ut)*(r/r2)*dVdt;
-   cons[SS2] += Pp*(cos(th)/sin(th))*dVdt;
+   //cons[SS2] += Pp*(cos(th)/sin(th))*dVdt;
 
 }
 
