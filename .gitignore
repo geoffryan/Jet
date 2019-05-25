@@ -6,3 +6,8 @@ jet
 abort
 
 *.png
+*.pdf
+
+*.swp
+*.dSYM
+__pycache__

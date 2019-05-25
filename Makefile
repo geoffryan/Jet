@@ -1,5 +1,5 @@
 
-INITIAL  = shellStruct
+INITIAL  = slab
 HYDRO    = rel_sph
 GEOMETRY = spherical
 BOUNDARY = polar
