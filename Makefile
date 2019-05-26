@@ -1,22 +1,9 @@
+MAKEFILE_MACH = $(PWD)/Makefile.mach
+MAKEFILE_IN = $(PWD)/Makefile.in
 
-INITIAL  = slab
-HYDRO    = rel_sph_TM
-GEOMETRY = spherical
-BOUNDARY = polar
-RIEMANN  = hllc
-TIMESTEP = rk2
-OUTPUT   = h5out
-RESTART  = h5in
+include $(MAKEFILE_MACH)
+include $(MAKEFILE_IN)
 
-UNAME = $(shell uname)
-ifeq ($(UNAME),Linux)
-H55 = /home/install/app/hdf5
-endif
-ifeq ($(UNAME),Darwin)
-H55 = /usr/local
-endif
-
-CC = mpicc
 FLAGS = -O3 -Wall -g
 
 INC = -I$(H55)/include
@@ -27,34 +14,34 @@ OBJ = main.o readpar.o onestep.o exchange.o plm.o domain.o faces.o cooling.o noz
 default: jet
 
 %.o: %.c paul.h
-	$(CC) $(FLAGS) $(INC) -c $<
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c $<
 
 $(RIEMANN).o: Riemann/$(RIEMANN).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Riemann/$(RIEMANN).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Riemann/$(RIEMANN).c
 
 $(TIMESTEP).o: Timestep/$(TIMESTEP).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Timestep/$(TIMESTEP).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Timestep/$(TIMESTEP).c
 
 $(INITIAL).o : Initial/$(INITIAL).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Initial/$(INITIAL).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Initial/$(INITIAL).c
 
 $(HYDRO).o : Hydro/$(HYDRO).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Hydro/$(HYDRO).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Hydro/$(HYDRO).c
 
 $(GEOMETRY).o : Geometry/$(GEOMETRY).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Geometry/$(GEOMETRY).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Geometry/$(GEOMETRY).c
 
 $(BOUNDARY).o : Boundary/$(BOUNDARY).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Boundary/$(BOUNDARY).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Boundary/$(BOUNDARY).c
 
 $(OUTPUT).o : Output/$(OUTPUT).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Output/$(OUTPUT).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Output/$(OUTPUT).c
 
 $(RESTART).o : Restart/$(RESTART).c paul.h
-	$(CC) $(FLAGS) $(INC) -c Restart/$(RESTART).c
+	$(CC) $(FLAGS) $(LOCAL_CFLAGS) $(INC) -c Restart/$(RESTART).c
 
 jet: $(OBJ) paul.h
-	$(CC) $(FLAGS) $(LIB) -o jet $(OBJ)
+	$(CC) $(FLAGS) $(LOCAL_LDFLAGS) $(LIB) -o jet $(OBJ)
 
 clean:
 	rm -f *.o jet

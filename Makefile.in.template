@@ -1,0 +1,8 @@
+INITIAL  = slab
+HYDRO    = rel_sph
+GEOMETRY = spherical
+BOUNDARY = polar
+RIEMANN  = hllc
+TIMESTEP = rk2
+OUTPUT   = h5out
+RESTART  = h5in

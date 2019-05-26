@@ -4,6 +4,8 @@ jet
 *.dat
 *.h5
 abort
+Makefile.mach
+Makefile.in
 
 *.png
 *.pdf

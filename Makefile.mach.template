@@ -1,0 +1,12 @@
+# Machine-specific settings for compiling
+
+# C compiler command (must have MPI support)
+CC = mpicc
+
+# HDF5 Library location
+H55 = /usr/local
+
+# Local Compiling And Linking Flags
+LOCAL_CFLAGS = 
+LOCAL_LDFLAGS = 
+
