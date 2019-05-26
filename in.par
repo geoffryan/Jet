@@ -4,17 +4,17 @@ Restart			0	//Restart from input.h5
 
 //Time Range//
 T_Start			3e-3
-T_End			3.0
+T_End			10.0
 
 //Output Frequency//
 Num_Reports		1e5
 Num_Snapshots		0
-Num_Checkpoints		100 //1000
+Num_Checkpoints		130 //1000
 Use_Logtime		1
 
 //Grid Dimensions//
-Num_R			256 //128
-Num_Theta		256
+Num_R			1536 //128
+Num_Theta		1
 Num_Phi			1
 
 //Domain Parameters//

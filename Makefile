@@ -1,6 +1,6 @@
 
 INITIAL  = slab
-HYDRO    = rel_sph
+HYDRO    = rel_sph_TM
 GEOMETRY = spherical
 BOUNDARY = polar
 RIEMANN  = hllc

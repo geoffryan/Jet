@@ -57,14 +57,16 @@ def plot(filename, tS, rS, uS, thS):
     fig.savefig(figname)
     plt.close()
 
-    return t, ur.max()
+    i = ur.argmax()
+
+    return t, r[i], ur[i]
 
 
 def calcSingleShellSolution(tmin, tmax, E0, g0, rho0, th0):
 
     td = np.power(9*E0 / (16*np.pi*rho0*g0*g0), 1.0/3.0)
 
-    t = np.geomspace(3.0e-1*min(tmin, td), 3*tmax, 1000*np.log10(tmax/tmin))
+    t = np.geomspace(3.0e-1*min(tmin, td), 1.01*tmax, 1000*np.log10(tmax/tmin))
 
     R0 = t[0] * np.sqrt(1-1.0/(g0*g0)) * grb.c
     u0 = np.sqrt(g0*g0-1)
@@ -97,15 +99,20 @@ if __name__ == "__main__":
     tS, rS, uS, thS = calcSingleShellSolution(tmin, tmax, E0, g0, rho0, th0)
 
     t = np.empty(N)
+    r = np.empty(N)
     ur = np.empty(N)
 
     for i, filename in enumerate(sys.argv[1:]):
-        t[i], ur[i] = plot(filename, tS, rS, uS, thS)
+        t[i], r[i], ur[i] = plot(filename, tS, rS, uS, thS)
 
-    fig, ax = plt.subplots(1, 1)
-    ax.plot(t, ur)
-    ax.plot(tS, uS)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
+    fig, ax = plt.subplots(2, 1, figsize=(6, 8))
+    ax[0].plot(t, r)
+    ax[0].plot(tS, rS)
+    ax[1].plot(t, ur)
+    ax[1].plot(tS, uS)
+    ax[0].set_xscale('log')
+    ax[0].set_yscale('log')
+    ax[1].set_xscale('log')
+    ax[1].set_yscale('log')
     fig.savefig('plot_u.png')
     plt.close()

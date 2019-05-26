@@ -1,11 +1,11 @@
 #include "../paul.h"
 
-static double GAMMA_LAW = 0.0;
+//Relativistic Hydro using TM EoS from Mignone+ 2005
+
 static double RHO_FLOOR = 0.0;
 static double PRE_FLOOR = 0.0;
 
 void setHydroParams( struct domain * theDomain ){
-   GAMMA_LAW = theDomain->theParList.Adiabatic_Index;
    RHO_FLOOR = theDomain->theParList.Density_Floor;
    PRE_FLOOR = theDomain->theParList.Pressure_Floor;
 }
@@ -17,8 +17,24 @@ double get_vr( double * prim ){
    return( ur/u0 );
 }
 
-double get_entropy( double * prim ){
-   return( log( prim[PPP] / pow( prim[RHO] , GAMMA_LAW ) ) ); 
+double get_h(double Th)
+{
+    // Th = P / rho
+    
+    return 2.5*Th + sqrt(1 + 2.25*Th*Th);
+}
+
+double get_cs2(double Th, double h)
+{
+    return Th * (5*h-8*Th) / (3*h*(h-Th));
+}
+
+double get_entropy( double * prim )
+{
+    double Th = prim[PPP] / prim[RHO];
+    double h = get_h(Th);
+    double es = prim[PPP] * (h-Th) * pow(prim[RHO], -5.0/3.0);
+    return log( es); 
 }
 
 void prim2cons( double * prim , double * cons , double r , double th , double dV ){
@@ -28,9 +44,8 @@ void prim2cons( double * prim , double * cons , double r , double th , double dV
    double ur  = prim[UU1];
    double ut  = prim[UU2];
    double u0  = sqrt( 1. + ur*ur + ut*ut );
-   double gam = GAMMA_LAW;
-   double rhoe = Pp/(gam-1.);
-   double rhoh = rho + rhoe + Pp;
+
+   double rhoh = rho * get_h(prim[PPP] / prim[RHO]);
 
    cons[DEN] = rho*u0*dV;
    cons[SS1] = rhoh*u0*ur*dV;
@@ -44,19 +59,19 @@ void prim2cons( double * prim , double * cons , double r , double th , double dV
 
 }
 
-void newt_f( double p , double * f , double * df , double D , double S2 , double E ){
-  
-   double G = GAMMA_LAW; 
-   double v2  = S2/pow( E + p , 2. );
-   double rhoe = E*(1.-v2) - D*sqrt(fabs(1.-v2)) - p*v2;
-   double Pnew = (G-1.)*rhoe;
+void newt_f(double P, double *f, double *df, double D, double S2, double E)
+{
+    double v2 = S2 / ((E+P)*(E+P));
+    double g = 1.0 / sqrt(fabs(1-v2));
+    double Th = g*P / D;
+    double h = get_h(Th);
 
-   double oe = 1./(sqrt(fabs(1.-v2))*E/D - 1. - p/D*v2/sqrt(fabs(1.-v2)) );
-   double c2 = (G-1.)/(1.+oe/G);
-   
-   *f  = Pnew - p;
-   *df = v2*c2 - 1.;
+    double dgdP = -v2 * g*g*g / (E+P);
+    double dThdP = (g + P*dgdP) / D;
+    double dhdP = (2.5*h - 4*Th) / (h - 2.5*Th) * dThdP;
 
+    *f  = D*h*g - E - P;
+    *df = D*(dhdP*g + h*dgdP) - 1.0;
 }
 
 void cons2prim( double * cons , double * prim , double r , double th , double dV ){
@@ -79,8 +94,8 @@ void cons2prim( double * cons , double * prim , double r , double th , double dV
    }
    
    double Pp = Pguess;
-   double v2  = S2/pow( E + Pp , 2. );
-   double rho = D*sqrt(fabs(1.-v2));;
+   double v2  = S2/((E + Pp)*(E + Pp));
+   double rho = D*sqrt(fabs(1.-v2));
    double vr = Sr/(E+Pp);
    double vt = St/(E+Pp);
    double ur = vr/sqrt(fabs(1.-v2));
@@ -107,9 +122,7 @@ void getUstar( double * prim , double * Ustar , double r , double th , double Sk
    double ur  = prim[UU1];
    double ut  = prim[UU2];
    double Pp  = prim[PPP];
-   double gam = GAMMA_LAW;
-   double rhoe = Pp/(gam-1.);
-   double rhoh = rho+rhoe+Pp;
+   double rhoh = rho * get_h(prim[PPP] / prim[RHO]);
 
    double un = ur*n[0] + ut*n[1];
    double u0  = sqrt(1.+ur*ur+ut*ut);
@@ -144,9 +157,7 @@ void flux( double * prim , double * flux , double r , double th , double * n ){
    double ut  = prim[UU2];
    double u0  = sqrt(1.+ur*ur+ut*ut);
    double un  = ur*n[0] + ut*n[1];
-   double gam = GAMMA_LAW;
-   double rhoe = Pp/(gam-1.);
-   double rhoh = rho+rhoe+Pp;
+   double rhoh = rho * get_h(prim[PPP] / prim[RHO]);
  
    flux[DEN] = rho*un;
    flux[SS1] = rhoh*ur*un + Pp*n[0];
@@ -160,27 +171,23 @@ void flux( double * prim , double * flux , double r , double th , double * n ){
 
 }
 
-void source( double * prim , double * cons , double * xp , double * xm , double dVdt ){
-
-   double rho = prim[RHO];
-   double Pp  = prim[PPP];
-   double rhoe = Pp/(GAMMA_LAW-1.);
-   double rhoh = rho + rhoe + Pp;
-   double rp = xp[0];
-   double rm = xm[0];
-   double r  = .5*(rp+rm);
-   double th = .5*(xp[1]+xm[1]);
-   double ut  = prim[UU2];
-   double r2 = (rp*rp+rm*rm+rp*rm)/3.;
-   cons[SS1] += (2.*Pp + rhoh*ut*ut)*(r/r2)*dVdt;
-   cons[SS2] += Pp*(cos(th)/sin(th))*dVdt;
-
+void source(double *prim, double *cons, double *xp, double *xm, double dVdt)
+{
+    double rho = prim[RHO];
+    double Pp  = prim[PPP];
+    double rhoh = rho * get_h(prim[PPP] / prim[RHO]);
+    double rp = xp[0];
+    double rm = xm[0];
+    double r  = .5*(rp+rm);
+    double th = .5*(xp[1]+xm[1]);
+    double ut  = prim[UU2];
+    double r2 = (rp*rp+rm*rm+rp*rm)/3.;
+    cons[SS1] += (2.*Pp + rhoh*ut*ut)*(r/r2)*dVdt;
+    cons[SS2] += Pp*(cos(th)/sin(th))*dVdt;
 }
 
 void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double * Ss , double * n , double r , double th ){
    
-   double gam = GAMMA_LAW;
-
    double ur1  = prim1[UU1];
    double ut1  = prim1[UU2];
    double un1  = ur1*n[0]+ut1*n[1];
@@ -189,9 +196,10 @@ void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double *
 
    double rho  = prim1[RHO];
    double Pp1  = prim1[PPP];
-   double rhoe = Pp1/(gam-1.);
-   double rhoh1 = rho + rhoe + Pp1;
-   double cs = sqrt(fabs( gam*Pp1/rhoh1 ) );
+   double Th = Pp1 / rho;
+   double h = get_h(Th);
+   double rhoh1 = rho * h;
+   double cs = sqrt(get_cs2(Th, h));
  
    double sigmas = cs*cs/(W1*W1*(1.0-cs*cs));
    *Sl = (vn1 - sqrt( sigmas*(1.0 - vn1*vn1 + sigmas) ) )/( 1.0 + sigmas );
@@ -205,9 +213,10 @@ void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double *
 
    rho  = prim2[RHO];
    double Pp2  = prim2[PPP];
-   rhoe = Pp2/(gam-1.);
-   double rhoh2 = rho + rhoe + Pp2;
-   cs = sqrt(fabs( gam*Pp2/rhoh2 ));
+   Th = Pp2 / rho;
+   h = get_h(Th);
+   double rhoh2 = rho * h;
+   cs = sqrt(get_cs2(Th, h));
 
    sigmas = cs*cs/(W2*W2*(1.0-cs*cs));
    double sl = (vn2 - sqrt( sigmas*(1.0 - vn2*vn2 + sigmas) ) )/( 1.0 + sigmas );
@@ -250,11 +259,10 @@ double get_maxv( double * prim , double w , int dim ){
    double W2  = 1. + ur*ur + ut*ut;
    double vr  = ur/sqrt(W2);
    double vt  = ut/sqrt(W2);
-   double gam = GAMMA_LAW;
-   double rhoe = Pp/(gam-1.);
-   double rhoh = rho + rhoe + Pp;
+   double Th = Pp/rho;
+   double h = get_h(Th);
 
-   double cs2 = gam*Pp/rhoh;
+   double cs2 = get_cs2(Th, h);
    double sigmas = cs2/(W2*(1.0-cs2));
 
    double vn = vr;
