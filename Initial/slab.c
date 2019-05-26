@@ -18,7 +18,7 @@ void initial( double * prim , double * x ){
 
    double t   = T_MIN;
    double th_j = M_PI;
-   double delta = 0.003;
+   double delta = 0.03;
 
    double rho0 = 1.0;
    double cs20 = 1.0e-6;

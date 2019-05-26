@@ -30,12 +30,15 @@ void boundary_r( struct domain * theDomain ){
          x[0] = r;
          initial( c1->prim , x );
          if( ABSORB_R0 ){
-            struct cell * c3 = &(theCells[jk][2]);
-            struct cell * c4 = &(theCells[jk][1]);
-            struct cell * c5 = &(theCells[jk][0]);
+            struct cell * c3 = &(theCells[jk][3]);
+            struct cell * c4 = &(theCells[jk][2]);
+            struct cell * c5 = &(theCells[jk][1]);
+            struct cell * c6 = &(theCells[jk][0]);
             for( q=0 ; q<NUM_Q ; ++q ){
-               c4->prim[q] = c3->prim[q];
-               c5->prim[q] = c3->prim[q];
+               //c4->prim[q] = c3->prim[q];
+               //c5->prim[q] = c3->prim[q];
+               //c6->prim[q] = c3->prim[q];
+               c6->prim[q] = c5->prim[q];
             }
          }
       }    

@@ -13,7 +13,7 @@ Num_Checkpoints		130 //1000
 Use_Logtime		1
 
 //Grid Dimensions//
-Num_R			1536 //128
+Num_R			512 //128
 Num_Theta		1
 Num_Phi			1
 
@@ -64,6 +64,6 @@ Nozzle_Time		0.01
 
 //Initial Parameters
 Explosion_Energy	1.0
-Gam_0			30.0
+Gam_0			10.0
 Gam_Boost		10.0
 

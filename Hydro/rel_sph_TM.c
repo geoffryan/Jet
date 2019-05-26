@@ -4,10 +4,13 @@
 
 static double RHO_FLOOR = 0.0;
 static double PRE_FLOOR = 0.0;
+static int ONED = 0;
 
 void setHydroParams( struct domain * theDomain ){
    RHO_FLOOR = theDomain->theParList.Density_Floor;
    PRE_FLOOR = theDomain->theParList.Pressure_Floor;
+   if(theDomain->Nt <= 1)
+       ONED = 1;
 }
 
 double get_vr( double * prim ){
@@ -179,11 +182,14 @@ void source(double *prim, double *cons, double *xp, double *xm, double dVdt)
     double rp = xp[0];
     double rm = xm[0];
     double r  = .5*(rp+rm);
-    double th = .5*(xp[1]+xm[1]);
     double ut  = prim[UU2];
     double r2 = (rp*rp+rm*rm+rp*rm)/3.;
     cons[SS1] += (2.*Pp + rhoh*ut*ut)*(r/r2)*dVdt;
-    cons[SS2] += Pp*(cos(th)/sin(th))*dVdt;
+    if(!ONED)
+    {
+        double th = .5*(xp[1]+xm[1]);
+        cons[SS2] += Pp*(cos(th)/sin(th))*dVdt;
+    }
 }
 
 void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double * Ss , double * n , double r , double th ){
