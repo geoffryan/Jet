@@ -2,8 +2,8 @@
 """jetpy"""
 from . import util
 from . import plot
-from .util import loadCheckpoint, getTime
+from .util import loadCheckpoint, getTime, getRminmax
 from .plot import plotVarRTh
 
-__all__ = [util, loadCheckpoint, getTime,
+__all__ = [util, loadCheckpoint, getTime, getRminmax,
            plot, plotVarRTh]

@@ -10,6 +10,7 @@ Makefile.in
 *.png
 *.pdf
 test
+*.txt
 
 *.swp
 *.dSYM

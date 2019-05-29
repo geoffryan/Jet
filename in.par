@@ -14,7 +14,7 @@ Use_Logtime		1
 
 //Grid Dimensions//
 Num_R			512 //128
-Num_Theta		1
+Num_Theta		128
 Num_Phi			1
 
 //Domain Parameters//
@@ -55,15 +55,15 @@ Output_Mass		0
 
 //Nozzle Parameters
 Nozzle_Switch		0
-Nozzle_Power		0.2
-Nozzle_Gamma		50.0
-Nozzle_Eta		1000.0
-Nozzle_r0		0.02
-Nozzle_th0		0.1 //0.05
-Nozzle_Time		0.01
+Nozzle_Power		0.0
+Nozzle_Gamma		0.0
+Nozzle_Eta		0.0
+Nozzle_r0		1.0e-5
+Nozzle_th0		0.2 
+Nozzle_Time		0.0
 
 //Initial Parameters
 Explosion_Energy	1.0
-Gam_0			10.0
+Gam_0			30.0
 Gam_Boost		10.0
 

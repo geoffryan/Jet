@@ -50,3 +50,11 @@ def getTime(filename):
     T = f['Grid/T'][0]
     f.close()
     return T
+
+
+def getRminmax(filename):
+
+    f = h5.File(filename, "r")
+    riph = f['Data/Cells'][:, -1][...]
+    f.close()
+    return 2*riph.min(), riph.max()

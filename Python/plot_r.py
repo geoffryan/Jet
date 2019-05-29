@@ -52,6 +52,9 @@ def plot(filename, tS, rS, uS, thS):
     ax[1, 0].plot(R, UR)
     ax[1, 1].plot(r, ut, 'k+')
 
+    ax[0, 0].set_yscale('log')
+    ax[0, 1].set_yscale('log')
+
     fig.tight_layout()
     print("Saving " + figname)
     fig.savefig(figname)
@@ -74,7 +77,7 @@ def calcSingleShellSolution(tmin, tmax, E0, g0, rho0, th0):
 
     R, u, th = grb.shock.shockEvolSpreadRK4(t, R0, u0, th0,
                                             Mej, rho0, 0.0, 0.0, 0.0, 0.0,
-                                            0.0, 0.0, False)
+                                            0.0, 0.0, True)
 
     return t, R / grb.c, u, th
 
@@ -94,7 +97,7 @@ if __name__ == "__main__":
     E0 = 1.0
     g0 = 30.0
     rho0 = 1.0
-    th0 = 0.5*np.pi
+    th0 = 0.2
 
     tS, rS, uS, thS = calcSingleShellSolution(tmin, tmax, E0, g0, rho0, th0)
 
